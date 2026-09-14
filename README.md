@@ -7,14 +7,21 @@ tool.
 
 ## Install
 
+Distributed as a git pi package (not on npm), from a tagged release:
+
+```
+pi install git:github.com/BrunoPanizzi/multipi@v0.1.0
+```
+
+Adjust host/path to the actual remote; `pi update --extensions` reconciles the clone to the pinned
+ref. No runtime dependencies; pi provides `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`
+and `typebox` (declared in `peerDependencies`).
+
 Development (symlink the source directory into pi's global extensions):
 
 ```
 ln -s ~/code/multipi/src ~/.pi/agent/extensions/multipi
 ```
-
-Or as a pi package: `pi install <path-or-git-url>`. No runtime dependencies; pi provides
-`@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui` and `typebox`.
 
 Dev loop: `npm install`, `npm run check` (typecheck + vitest). Iterate with `/reload` inside pi.
 
