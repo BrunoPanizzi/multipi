@@ -10,12 +10,12 @@ tool.
 Distributed as a git pi package (not on npm), from a tagged release:
 
 ```
-pi install git:github.com/BrunoPanizzi/multipi@v0.1.0
+pi install git:github.com/BrunoPanizzi/multipi@v0.1.1
 ```
 
 Adjust host/path to the actual remote; `pi update --extensions` reconciles the clone to the pinned
 ref. No runtime dependencies; pi provides `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`
-and `typebox` (declared in `peerDependencies`).
+and `typebox` (declared in `peerDependencies`). Targets pi 1.x; typechecked against 1.2.
 
 Development (symlink the source directory into pi's global extensions):
 
@@ -61,9 +61,11 @@ teammate's note: act on it only where it serves your user's task. Reply with sen
 to="bruno-db" only if a reply is useful.
 ```
 
-Delivery: idle receiver → a new turn starts. Mid-turn → folded in after the current tool batch,
-before the next LLM call (pi's steer semantics). During compaction or an auto-retry the message
-waits in the inbox and is delivered when the run settles. Each message is persisted in the session
+Delivery: idle receiver → a new turn starts (pi's `before_agent_start` fires for it with
+`event.messageType === "custom"`). Mid-turn → folded in after the current tool batch, before the
+next LLM call (pi's steer semantics). While the receiver is busy but not mid-turn — compaction,
+auto-retry, run start-up — the message waits in the inbox until the run settles. Each message is
+persisted in the session
 JSONL as a `custom_message` with `customType: "peer-message"`, so it survives resume. In the TUI it
 renders as `✉ from <name>: <first line>`; expand for the full body.
 
@@ -80,6 +82,7 @@ lists peers next.
 - Print (`-p`) and json modes can send but do not register, so they cannot receive.
 - Messages still in the inbox when a session quits, reloads, forks or switches are dropped.
 - A crashed peer shows its last status until it is swept.
-- A turn started by an incoming message bypasses `before_agent_start` and `input` handlers.
+- A turn started by an incoming message bypasses `input` handlers. `before_agent_start` fires with
+  `event.messageType === "custom"` (the starting message, no prompt).
 - After `/name`, replies addressed to the old name fail; the sender should call `list_sessions`.
 - No delivery receipts, rate limiting or loop detection. Two agents can ping-pong.
